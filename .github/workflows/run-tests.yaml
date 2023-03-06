@@ -24,5 +24,5 @@ jobs:
       run: tsc  
       working-directory: home/variable-exporter
     - name: "Run Test"
-      run: mocha test-mocha.test.js
+      run: mocha tests/_suite.js
       working-directory: home/variable-exporter
