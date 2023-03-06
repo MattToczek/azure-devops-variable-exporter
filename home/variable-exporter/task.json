@@ -1,0 +1,31 @@
+{
+ "$schema": "https://raw.githubusercontent.com/Microsoft/azure-pipelines-task-lib/master/tasks.schema.json",
+ "id": "p-v-e-cred",
+ "name": "pipeline-variable-exporter",
+ "friendlyName": "Pipeline Variable Exporter",
+ "description": "A task to export pipeline variable from a JSON file input",
+ "helpMarkDown": "",
+ "category": "Utility",
+ "author": "CrederaUK",
+ "version": {
+     "Major": 0,
+     "Minor": 1,
+     "Patch": 0
+ },
+ "instanceNameFormat": "Set Variables From JSON File $(variablesource)",
+ "inputs": [
+     {
+         "name": "variablesource",
+         "type": "string",
+         "label": "source",
+         "defaultValue": "",
+         "required": false,
+         "helpMarkDown": "Source of JSON variables"
+     }
+ ],
+ "execution": {
+     "Node": {
+         "target": "index.js"
+     }
+ }
+ }

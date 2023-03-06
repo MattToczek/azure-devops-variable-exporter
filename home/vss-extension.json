@@ -1,0 +1,36 @@
+{
+    "manifestVersion": 1,
+    "id": "build-release-task",
+    "name": "Pipeline Variable Exporter",
+    "version": "0.0.1",
+    "publisher": "Credera",
+    "targets": [
+        {
+            "id": "Microsoft.VisualStudio.Services"
+        }
+    ],    
+    "description": "Task to export multiple pipeline variables at runtime.",
+    "categories": [
+        "Azure Pipelines"
+    ],
+    "icons": {
+        "default": "images/cred_logo.jpg"        
+    },
+    "files": [
+        {
+            "path": "variable-exporter"
+        }
+    ],
+    "contributions": [
+        {
+            "id": "custom-build-release-task",
+            "type": "ms.vss-distributed-task.task",
+            "targets": [
+                "ms.vss-distributed-task.tasks"
+            ],
+            "properties": {
+                "name": "variable-exporter"
+            }
+        }
+    ]
+}

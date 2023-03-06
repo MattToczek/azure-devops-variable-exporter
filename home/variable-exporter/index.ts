@@ -1,0 +1,59 @@
+import tl = require('azure-pipelines-task-lib');
+import fs = require('fs')
+
+
+function readFile(filePath: string): Promise<string>  {
+    const fileContent: Promise<string> = new Promise<string> ((resolve, reject) => {
+        fs.readFile(filePath, "utf8", function(err, jsonString) {
+            if (err) reject("Error reading FILE3");
+            else resolve(jsonString);
+        });
+    })
+    return fileContent
+}
+
+function setVariables(jsonObj: {[key:string]: any}){
+    let keys = Object.keys(jsonObj);
+    let vals = keys.map(k => jsonObj[k])
+    return {keys: keys, vals: vals}
+}
+
+function outputVars(varObject: {keys:string[], vals:any[]}, previousVarName: string = ""){
+    for ( var i: number = 0; i <= varObject.keys.length; i ++ ){
+        const currentVarName: string = `${previousVarName}${varObject.keys[i]}`
+        if ( typeof varObject.vals[i] == "string" || typeof varObject.vals[i] == "number" || typeof varObject.vals[i] == "boolean" ) {
+            console.log(`##vso[task.setvariable variable=${currentVarName};]${varObject.vals[i]}`)
+        } else if (Array.isArray(varObject.vals[i])) {
+            const nestedKeys = [...varObject.vals[i].keys()]
+            const nestedKeysStr = nestedKeys.map(String)
+            outputVars({keys: nestedKeysStr, vals: nestedKeys.map(k => varObject.vals[i][k])}, `${currentVarName}_`)
+        } else {
+            if (varObject.keys[i] != undefined){
+                var nestedKeys = Object.keys(varObject.vals[i])
+                outputVars({keys: nestedKeys, vals: nestedKeys.map(k => varObject.vals[i][k])}, `${currentVarName}_`)
+            }
+        }
+    }
+}
+
+async function run() {
+    try {
+        const inputString: string | undefined = tl.getInput('variablesource', true);
+        if (inputString == 'bad') {
+            tl.setResult(tl.TaskResult.Failed, 'Bad input was given');
+            return;
+        } else if (typeof(inputString) == "string"){
+            let jsonProm: Promise<string> = readFile(inputString)
+            jsonProm.then((value) => {
+                const parsedJson = JSON.parse(value)
+                const keyVal: {keys:string[], vals:any[]} = setVariables(parsedJson)
+                outputVars(keyVal)
+            });
+        }
+    }
+    catch (err) {
+        tl.setResult(tl.TaskResult.Failed, err.message);
+    }
+}
+
+run();
