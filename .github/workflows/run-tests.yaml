@@ -1,0 +1,31 @@
+name: Tests
+on:
+  ### Uncomment and add dev branch to test on push to remote ###
+  # push:
+  #   branches: 
+  #   - YOUR_BRANCH_NAME 
+  pull_request:
+    branches:
+    - main
+
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: 'Install Node'
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16
+    - name: Install mocha
+      run: npm install -g mocha
+    - name: Install dependencies
+      run: npm install 
+      working-directory: home/variable-exporter
+    - name: "Compile"
+      run: tsc  
+      working-directory: home/variable-exporter
+    - name: "Run Test"
+      run: mocha tests/_suite.js
+      working-directory: home/variable-exporter
