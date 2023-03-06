@@ -80,7 +80,7 @@ describe('Test JSON from file source to vars', function () {
         done();
     });
 
-    it('it should add "isOutput=true;" if output var is present', function(done: Mocha.Done) {
+    it('it should add ";isOutput=true" if output var is present', function(done: Mocha.Done) {
         this.timeout(1000);
 
         let tp = path.join(__dirname, 'output.js');
@@ -92,7 +92,7 @@ describe('Test JSON from file source to vars', function () {
         assert.strictEqual(tr.warningIssues.length, 0, "should have no warnings");
         assert.strictEqual(tr.errorIssues.length, 0, "should have no errors");
         console.log("done")
-        assert.strictEqual(tr.stdOutContained("isOutput=true;"), true, "No output found in stdout.")
+        assert.strictEqual(tr.stdOutContained(";isOutput=true"), true, "No output found in stdout.")
         done()
     });    
 });
