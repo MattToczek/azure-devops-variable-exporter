@@ -1,0 +1,27 @@
+name: Tests
+on:
+  push:
+    branches:
+    - add_github_actions
+  pull_request:
+    branches:
+    - main
+
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: 'Install Node'
+      uses: actions/setup-node@v1
+    - name: Install mocha
+      run: npm install -g mocha
+    - name: Install dependencies
+      run: npm install 
+    - name: "Compile"
+      run: tsc  
+      working-directory: home/variable-exporter
+    - name: "Run Test"
+      run: mocha test-mocha.test.js
+      working-directory: home/variable-exporter
