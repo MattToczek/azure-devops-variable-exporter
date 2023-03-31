@@ -99,7 +99,7 @@ describe('Test JSON from file source to vars', function () {
     it('it should add "issecret=true;" if secret var is present', function(done: Mocha.Done) {
         this.timeout(1000);
 
-        let tp = path.join(__dirname, 'output.js');
+        let tp = path.join(__dirname, 'secret.js');
         let tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
         
         tr.run();
@@ -115,7 +115,7 @@ describe('Test JSON from file source to vars', function () {
     it('it should add "isOutput=true;issecret=true;" if secret and output vars are present', function(done: Mocha.Done) {
         this.timeout(1000);
 
-        let tp = path.join(__dirname, 'output.js');
+        let tp = path.join(__dirname, 'secret_and_output.js');
         let tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
         
         tr.run();
@@ -124,7 +124,10 @@ describe('Test JSON from file source to vars', function () {
         assert.strictEqual(tr.warningIssues.length, 0, "should have no warnings");
         assert.strictEqual(tr.errorIssues.length, 0, "should have no errors");
         console.log("done")
-        assert.strictEqual(tr.stdOutContained("##vso[task.setvariable variable=simple-test;isOutput=true;issecret=true;]passed"), true, "No secret variables found")
+        console.log(tr.stdout)
+        assert.strictEqual(tr.stdOutContained("issecret=true;"), true, "No secret variables found")
+        assert.strictEqual(tr.stdOutContained("isOutput=true;"), true, "No variables exported")
+        assert.strictEqual(tr.stdOutContained("##vso[task.setvariable variable=simple-test;isOutput=true;issecret=true;]passed"), true, "Secret and outlook variables not found as expected")
         done()
     });
 });
