@@ -84,4 +84,6 @@ yarn.lock
 
 .taskkey
 
+# Ignore build files
 *.vsix
+**/**/*.js

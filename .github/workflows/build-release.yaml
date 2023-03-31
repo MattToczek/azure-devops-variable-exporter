@@ -3,10 +3,15 @@ on:
   push:
     branches:
     - main
+    # paths:
+    # - "home"
 
 jobs:
   create-release:
     runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: write
     steps:
     - name: Checkout main
       uses: actions/checkout@v3
@@ -17,13 +22,20 @@ jobs:
     - name: Install dependencies
       run: npm i -g tfx-cli
     - name: Build release
-      run: tfx extension create --manifest-globs ./home/vss-extension.json
+      run: |
+        mkdir extension
+        tfx extension create --manifest-globs ./home/vss-extension.json --output-path ./extension
     - name: Get version
       run: |
         version=$(cat ./home/vss-extension.json | jq -r '.version')
-        echo "::set-output name=version::${version}"
+        echo "version=${version}" >> $GITHUB_OUTPUT
       id: version
-    - name: release
+    - name: Set last commit message
+      id: change_message
+      run: |
+        last_message=$(git log -2 --pretty=format:"%s" | sed '2q;d')
+        echo "body=${last_message}" >> $GITHUB_OUTPUT
+    - name: Release
       uses: actions/create-release@v1
       id: create_release
       with:
@@ -31,20 +43,20 @@ jobs:
         prerelease: false
         release_name: variable_exporter_${{ steps.version.outputs.version }}
         tag_name: ${{ steps.version.outputs.version }}
-        body: ${{ github.event.head_commit.message }}
+        body: ${{steps.change_message.outputs.body}}
       env:
         GITHUB_TOKEN: ${{ github.token }}
     - name: Set file name
       id: set_file
       run: |
-        file=$(ls ./*.vsix)
-        echo "::set-output name=file::${test:2}"
+        file=$(ls ./extension)
+        echo "file=${file}" >> $GITHUB_OUTPUT
     - name: Upload artifact
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ github.token }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./${{ steps.set_file.outputs.file }}
+        asset_path: ./extension/${{ steps.set_file.outputs.file }}
         asset_name: ${{ steps.set_file.outputs.file }}
         asset_content_type: application/octet-stream
