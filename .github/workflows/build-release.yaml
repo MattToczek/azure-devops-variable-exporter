@@ -1,0 +1,49 @@
+name: Create Release
+on:
+  branches:
+  - main
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout main
+      uses: actions/checkout@v3
+    - name: Install Node
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16
+    - name: Install dependencies
+      run: npm i -g tfx-cli
+    - name: Build release
+      run: tfx extension create --manifest-globs ./home/vss-extension.json
+    - name: Get version
+      run: |
+        version=$(cat ./home/vss-extension.json | jq -r '.version')
+        echo "::set-output name=version::${version}"
+      id: version
+    - name: release
+      uses: actions/create-release@v1
+      id: create_release
+      with:
+        draft: false
+        prerelease: false
+        release_name: variable_exporter_${{ steps.version.outputs.version }}
+        tag_name: ${{ steps.version.outputs.version }}
+        body: ${{ github.event.head_commit.message }}
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+    - name: Set file name
+      id: set_file
+      run: |
+        file=$(ls ./*.vsix)
+        echo "::set-output name=file::${test:2}"
+    - name: Upload artifact
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./${{ steps.set_file.outputs.file }}
+        asset_name: ${{ steps.set_file.outputs.file }}
+        asset_content_type: application/octet-stream
