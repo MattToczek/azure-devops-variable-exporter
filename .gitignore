@@ -83,3 +83,5 @@ dist/**/*
 yarn.lock
 
 .taskkey
+
+*.vsix

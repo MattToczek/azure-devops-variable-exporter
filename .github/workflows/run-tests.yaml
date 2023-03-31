@@ -3,17 +3,65 @@ on:
   ### Uncomment and add dev branch to test on push to remote ###
   # push:
   #   branches: 
-  #   - YOUR_BRANCH_NAME 
+  #   - #YOUR_BRANCH_NAME 
   pull_request:
     branches:
     - main
-
+    paths-ignore:
+    - "./.github/*"
+    - "./README.md"
+    - "./LICENSE"
+    - "./.gitignore"
 
 jobs:
+  check-sem-ver:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout main
+      uses: actions/checkout@v3 
+      with:
+        path: main
+        ref: main
+    - name: Checkout pr
+      uses: actions/checkout@v3 
+      with:
+        path: pr
+    - name: Check SemVer Update
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        major=false
+        minor=false
+        patch=false
+
+        main_ver=($(cat main/home/vss-extension.json | jq '.version|= split(".")| .version[]' | tr -d '"'))  
+        pr_ver=($(cat pr/home/vss-extension.json | jq '.version|= split(".")| .version[]' | tr -d '"'))
+
+        if [[ main_ver[1] -lt pr_ver[1] ]]; then
+          major=true
+          echo "Major Release"
+        fi
+        if [[ main_ver[2] -lt pr_ver[2] ]]; then
+          minor=true
+          echo "Minor Release"
+        fi
+        if [[ main_ver[3] -lt pr_ver[3] ]]; then
+          patch=true
+          echo "Patch Release"
+        fi
+
+        if [[ !$major && !$minor && !$patch ]]; then
+          echo "ERROR: No SemVer found for release!"
+          echo "Please update the sematic versioning in \"home/vss-extension.json\""
+          exit 1
+        fi
+
   test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
+    - name: Checkout
+      uses: actions/checkout@v3
     - name: 'Install Node'
       uses: actions/setup-node@v3
       with:
