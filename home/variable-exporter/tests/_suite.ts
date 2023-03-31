@@ -80,7 +80,7 @@ describe('Test JSON from file source to vars', function () {
         done();
     });
 
-    it('it should add ";isOutput=true" if output var is present', function(done: Mocha.Done) {
+    it('it should add "isOutput=true;" if output var is present', function(done: Mocha.Done) {
         this.timeout(1000);
 
         let tp = path.join(__dirname, 'output.js');
@@ -92,7 +92,39 @@ describe('Test JSON from file source to vars', function () {
         assert.strictEqual(tr.warningIssues.length, 0, "should have no warnings");
         assert.strictEqual(tr.errorIssues.length, 0, "should have no errors");
         console.log("done")
-        assert.strictEqual(tr.stdOutContained(";isOutput=true"), true, "No output found in stdout.")
+        assert.strictEqual(tr.stdOutContained("##vso[task.setvariable variable=simple-test;isOutput=true;]passed"), true, "No variables exported")
         done()
-    });    
+    });  
+    
+    it('it should add "issecret=true;" if secret var is present', function(done: Mocha.Done) {
+        this.timeout(1000);
+
+        let tp = path.join(__dirname, 'output.js');
+        let tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
+        
+        tr.run();
+        console.log(tr.succeeded);
+        assert.strictEqual(tr.succeeded, true, 'should have succeeded');
+        assert.strictEqual(tr.warningIssues.length, 0, "should have no warnings");
+        assert.strictEqual(tr.errorIssues.length, 0, "should have no errors");
+        console.log("done")
+        assert.strictEqual(tr.stdOutContained("##vso[task.setvariable variable=simple-test;issecret=true;]passed"), true, "No secret variables found")
+        done()
+    });
+
+    it('it should add "isOutput=true;issecret=true;" if secret and output vars are present', function(done: Mocha.Done) {
+        this.timeout(1000);
+
+        let tp = path.join(__dirname, 'output.js');
+        let tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
+        
+        tr.run();
+        console.log(tr.succeeded);
+        assert.strictEqual(tr.succeeded, true, 'should have succeeded');
+        assert.strictEqual(tr.warningIssues.length, 0, "should have no warnings");
+        assert.strictEqual(tr.errorIssues.length, 0, "should have no errors");
+        console.log("done")
+        assert.strictEqual(tr.stdOutContained("##vso[task.setvariable variable=simple-test;isOutput=true;issecret=true;]passed"), true, "No secret variables found")
+        done()
+    });
 });
