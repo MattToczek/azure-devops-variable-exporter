@@ -1,9 +1,9 @@
 name: Tests
 on:
   ### Uncomment and add dev branch to test on push to remote ###
-  # push:
-  #   branches: 
-  #   - YOUR_BRANCH_NAME 
+  push:
+    branches: 
+    - release_pipeline #YOUR_BRANCH_NAME 
   pull_request:
     branches:
     - main
