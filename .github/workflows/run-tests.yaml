@@ -13,7 +13,6 @@ on:
     - "./LICENSE"
     - "./.gitignore"
 
-
 jobs:
   check-sem-ver:
     runs-on: ubuntu-latest
