@@ -1,7 +1,8 @@
 name: Create Release
 on:
-  branches:
-  - main
+  push:
+    branches:
+    - main
 
 jobs:
   create-release:

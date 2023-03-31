@@ -10,8 +10,9 @@ on:
 
 
 jobs:
-  check_sem_ver:
+  check-sem-ver:
     runs-on: ubuntu-latest
+    steps:
     - name: Checkout main
       uses: actions/checkout@v3 
       with:
