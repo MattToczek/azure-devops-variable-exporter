@@ -3,10 +3,16 @@ on:
   push:
     branches:
     - main
+    - fix_release
+    # paths:
+    # - "home"
 
 jobs:
   create-release:
     runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: write
     steps:
     - name: Checkout main
       uses: actions/checkout@v3
@@ -23,7 +29,7 @@ jobs:
         version=$(cat ./home/vss-extension.json | jq -r '.version')
         echo "::set-output name=version::${version}"
       id: version
-    - name: release
+    - name: Release
       uses: actions/create-release@v1
       id: create_release
       with:
