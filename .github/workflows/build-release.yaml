@@ -3,7 +3,6 @@ on:
   push:
     branches:
     - main
-    - fix_release
     # paths:
     # - "home"
 
@@ -26,7 +25,6 @@ jobs:
       run: |
         mkdir extension
         tfx extension create --manifest-globs ./home/vss-extension.json --output-path ./extension
-        ls extension
     - name: Get version
       run: |
         version=$(cat ./home/vss-extension.json | jq -r '.version')
