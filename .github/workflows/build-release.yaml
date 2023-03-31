@@ -23,11 +23,14 @@ jobs:
     - name: Install dependencies
       run: npm i -g tfx-cli
     - name: Build release
-      run: tfx extension create --manifest-globs ./home/vss-extension.json
+      run: |
+        mkdir extension
+        tfx extension create --manifest-globs ./home/vss-extension.json --output-path ./extension
+        ls extension
     - name: Get version
       run: |
         version=$(cat ./home/vss-extension.json | jq -r '.version')
-        echo "::set-output name=version::${version}"
+        echo "version=${version}" >> $GITHUB_OUTPUT
       id: version
     - name: Release
       uses: actions/create-release@v1
@@ -43,8 +46,8 @@ jobs:
     - name: Set file name
       id: set_file
       run: |
-        file=$(ls ./*.vsix)
-        echo "::set-output name=file::${test:2}"
+        file=$(ls ./extension)
+        echo "file=${test:2}" >> $GITHUB_OUTPUT
     - name: Upload artifact
       uses: actions/upload-release-asset@v1
       env:
