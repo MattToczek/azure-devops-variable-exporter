@@ -31,11 +31,11 @@ jobs:
         version=$(cat ./home/vss-extension.json | jq -r '.version')
         echo "version=${version}" >> $GITHUB_OUTPUT
       id: version
-    - name: Build Changelog
-      id: github_release
-      uses: mikepenz/release-changelog-builder-action@v3
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Set last commit message
+      id: change_message
+      run: |
+        last_message=$(git log -2 --pretty=format:"%s" | sed '2q;d')
+        echo "body=${last_message}" >> $GITHUB_OUTPUT
     - name: Release
       uses: actions/create-release@v1
       id: create_release
@@ -44,7 +44,7 @@ jobs:
         prerelease: false
         release_name: variable_exporter_${{ steps.version.outputs.version }}
         tag_name: ${{ steps.version.outputs.version }}
-        body: ${{steps.build_changelog.outputs.changelog}}
+        body: ${{steps.change_message.outputs.body}}
       env:
         GITHUB_TOKEN: ${{ github.token }}
     - name: Set file name
