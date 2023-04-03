@@ -3,8 +3,8 @@ on:
   push:
     branches:
     - main
-    paths:
-    - "home"
+    # paths:
+    # - "home"
 
 jobs:
   create-release:
