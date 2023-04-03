@@ -2,7 +2,7 @@
     "manifestVersion": 1,
     "id": "build-release-task",
     "name": "Pipeline Variable Exporter",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "publisher": "Credera",
     "targets": [
         {

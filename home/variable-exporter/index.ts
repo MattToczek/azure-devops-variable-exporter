@@ -18,19 +18,45 @@ function setVariables(jsonObj: {[key:string]: any}){
     return {keys: keys, vals: vals}
 }
 
-function outputVars(varObject: {keys:string[], vals:any[]}, outputSuffix: string, previousVarName: string = ""){
+interface outputVarsParams{
+    varObject: {
+        keys:string[], 
+        vals:any[]
+    }, 
+    outputSuffix?: string, 
+    secretSuffix?: string, 
+    previousVarName?: string
+}
+
+function outputVars({varObject, outputSuffix, secretSuffix, previousVarName = ""}: outputVarsParams){
     for ( var i: number = 0; i <= varObject.keys.length; i ++ ){
         const currentVarName: string = `${previousVarName}${varObject.keys[i]}`
         if ( typeof varObject.vals[i] == "string" || typeof varObject.vals[i] == "number" || typeof varObject.vals[i] == "boolean" ) {
-            console.log(`##vso[task.setvariable variable=${currentVarName};]${varObject.vals[i]}${outputSuffix}`)
+            console.log(`##vso[task.setvariable variable=${currentVarName};${outputSuffix}${secretSuffix}]${varObject.vals[i]}`)
         } else if (Array.isArray(varObject.vals[i])) {
             const nestedKeys = [...varObject.vals[i].keys()]
             const nestedKeysStr = nestedKeys.map(String)
-            outputVars({keys: nestedKeysStr, vals: nestedKeys.map(k => varObject.vals[i][k])}, outputSuffix, `${currentVarName}_`)
+            outputVars({
+                varObject: {
+                    keys: nestedKeysStr, 
+                    vals: nestedKeys.map(k => varObject.vals[i][k])
+                }, 
+                outputSuffix: outputSuffix, 
+                secretSuffix: secretSuffix, 
+                previousVarName: `${currentVarName}_`
+            })
         } else {
             if (varObject.keys[i] != undefined){
                 var nestedKeys = Object.keys(varObject.vals[i])
-                outputVars({keys: nestedKeys, vals: nestedKeys.map(k => varObject.vals[i][k])}, outputSuffix, `${currentVarName}_`)
+                outputVars({
+                    varObject: {
+                        keys: nestedKeys, 
+                        vals: nestedKeys.map(k => varObject.vals[i][k])
+                    }, 
+                    outputSuffix: outputSuffix, 
+                    secretSuffix: secretSuffix, 
+                    previousVarName: `${currentVarName}_`
+                })
             }
         }
     }
@@ -40,7 +66,9 @@ async function run() {
     try {
         const inputString: string | undefined = tl.getInput('variablesource', true);
         const output: boolean | false = tl.getBoolInput('output', false);
-        const outputSuffix: string = output ? ";isOutput=true" : ""
+        const secret: boolean | false = tl.getBoolInput('secret', false);
+        const outputSuffix: string = output ? "isOutput=true;" : ""
+        const secretSuffix: string = secret ? "issecret=true;" : ""
 
         if (inputString == 'bad') {
             tl.setResult(tl.TaskResult.Failed, 'No file input found!');
@@ -50,7 +78,11 @@ async function run() {
             jsonProm.then((value) => {
                 const parsedJson = JSON.parse(value)
                 const keyVal: {keys:string[], vals:any[]} = setVariables(parsedJson)
-                outputVars(keyVal, outputSuffix)
+                outputVars({
+                    varObject: keyVal, 
+                    outputSuffix: outputSuffix, 
+                    secretSuffix: secretSuffix
+                })
             });
         }
     }
@@ -60,7 +92,6 @@ async function run() {
           } else {
             tl.setResult(tl.TaskResult.Failed, "Issue surfacing error message!");
           }
-        
     }
 }
 
