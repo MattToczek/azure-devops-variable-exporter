@@ -1,9 +1,9 @@
 name: Tests
 on:
   ### Uncomment and add dev branch to test on push to remote ###
-  push:
-    branches: 
-    - add_secret_and_ouput_options #YOUR_BRANCH_NAME 
+  # push:
+  #   branches: 
+  #   - YOUR_BRANCH_NAME 
   pull_request:
     branches:
     - main
@@ -51,11 +51,13 @@ jobs:
           echo "Patch Release"
         fi
 
-        if [[ !$major && !$minor && !$patch ]]; then
-          echo "ERROR: No SemVer found for release!"
-          echo "Please update the sematic versioning in \"home/vss-extension.json\""
-          exit 1
-        fi
+        if $major || $minor || $patch; then
+          exit 0
+        fi 
+
+        echo "ERROR: No SemVer found for release!"
+        echo "Please update the sematic versioning in \"home/vss-extension.json\""
+        exit 1
 
   test:
     runs-on: ubuntu-latest

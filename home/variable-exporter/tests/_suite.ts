@@ -124,7 +124,6 @@ describe('Test JSON from file source to vars', function () {
         assert.strictEqual(tr.warningIssues.length, 0, "should have no warnings");
         assert.strictEqual(tr.errorIssues.length, 0, "should have no errors");
         console.log("done")
-        console.log(tr.stdout)
         assert.strictEqual(tr.stdOutContained("issecret=true;"), true, "No secret variables found")
         assert.strictEqual(tr.stdOutContained("isOutput=true;"), true, "No variables exported")
         assert.strictEqual(tr.stdOutContained("##vso[task.setvariable variable=simple-test;isOutput=true;issecret=true;]passed"), true, "Secret and outlook variables not found as expected")
