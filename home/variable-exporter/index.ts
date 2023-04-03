@@ -18,7 +18,17 @@ function setVariables(jsonObj: {[key:string]: any}){
     return {keys: keys, vals: vals}
 }
 
-function outputVars(varObject: {keys:string[], vals:any[]}, outputSuffix: string, secretSuffix: string, previousVarName: string = ""){
+interface outputVarsParams{
+    varObject: {
+        keys:string[], 
+        vals:any[]
+    }, 
+    outputSuffix?: string, 
+    secretSuffix?: string, 
+    previousVarName?: string
+}
+
+function outputVars({varObject, outputSuffix, secretSuffix, previousVarName = ""}: outputVarsParams){
     for ( var i: number = 0; i <= varObject.keys.length; i ++ ){
         const currentVarName: string = `${previousVarName}${varObject.keys[i]}`
         if ( typeof varObject.vals[i] == "string" || typeof varObject.vals[i] == "number" || typeof varObject.vals[i] == "boolean" ) {
@@ -26,11 +36,27 @@ function outputVars(varObject: {keys:string[], vals:any[]}, outputSuffix: string
         } else if (Array.isArray(varObject.vals[i])) {
             const nestedKeys = [...varObject.vals[i].keys()]
             const nestedKeysStr = nestedKeys.map(String)
-            outputVars({keys: nestedKeysStr, vals: nestedKeys.map(k => varObject.vals[i][k])}, outputSuffix, `${currentVarName}_`)
+            outputVars({
+                varObject: {
+                    keys: nestedKeysStr, 
+                    vals: nestedKeys.map(k => varObject.vals[i][k])
+                }, 
+                outputSuffix: outputSuffix, 
+                secretSuffix: secretSuffix, 
+                previousVarName: `${currentVarName}_`
+            })
         } else {
             if (varObject.keys[i] != undefined){
                 var nestedKeys = Object.keys(varObject.vals[i])
-                outputVars({keys: nestedKeys, vals: nestedKeys.map(k => varObject.vals[i][k])}, outputSuffix, `${currentVarName}_`)
+                outputVars({
+                    varObject: {
+                        keys: nestedKeys, 
+                        vals: nestedKeys.map(k => varObject.vals[i][k])
+                    }, 
+                    outputSuffix: outputSuffix, 
+                    secretSuffix: secretSuffix, 
+                    previousVarName: `${currentVarName}_`
+                })
             }
         }
     }
@@ -52,7 +78,11 @@ async function run() {
             jsonProm.then((value) => {
                 const parsedJson = JSON.parse(value)
                 const keyVal: {keys:string[], vals:any[]} = setVariables(parsedJson)
-                outputVars(keyVal, outputSuffix, secretSuffix)
+                outputVars({
+                    varObject: keyVal, 
+                    outputSuffix: outputSuffix, 
+                    secretSuffix: secretSuffix
+                })
             });
         }
     }
